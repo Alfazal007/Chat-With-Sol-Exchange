@@ -46,12 +46,17 @@ const createNewUserHandler = asyncHandler(async(req: Request, res: Response) => 
                 data: {
                     password: hashedPassword,
                     username: result.data.username,
-                    email: result.data.email
+                    email: result.data.email,
+                    first_name: result.data.firstName || "",
+                    last_name: result.data.lastName || "",
+                    refreshToken: ""
                 },
                 select: {
                     username: true,
                     email: true,
-                    id: true
+                    id: true,
+                    first_name: true,
+                    last_name: true
                 }
             });
             return res.status(201).json(new ApiResponse(201, "New User Created successfully", newUser))
