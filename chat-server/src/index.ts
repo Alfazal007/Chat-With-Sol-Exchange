@@ -1,4 +1,4 @@
-import WebSocket, { WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import {configDotenv} from "dotenv";
 import { ChatManager } from './Managers/chatManager';
 configDotenv({path: ".env"})

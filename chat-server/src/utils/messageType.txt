@@ -1,0 +1,27 @@
+{
+    "type" : "init_message",
+    "content" : {
+        "accesstoken": "eyjhbgcioijiuzi1niisinr5cci6ikpxvcj9",
+        "username": "someone1"
+    }
+}
+
+
+
+{
+    "type" : "disconnect_message",
+    "content" : {
+        "username": "someone1"
+    }
+}
+
+
+
+{
+    "type" : "chat_message",
+    "content" : {
+        "sender": "someone2",
+        "receiver": "someone2",
+        "content": "this is a msg from someone1 to someone2"
+    }
+}

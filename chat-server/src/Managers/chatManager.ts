@@ -1,13 +1,17 @@
 import WebSocket from "ws";
 import { Chat_Message, Disconnect_Message, Init_Message, validationUrl } from "../constants";
 import axios from "axios";
+import {createClient, RedisClientType} from "redis";
 
 export class ChatManager {
     private static chatManager: ChatManager;
     public connections: Map<string, WebSocket>;
+    public client: RedisClientType;
 
     private constructor() {
         this.connections = new Map<string, WebSocket>();
+        this.client = createClient();
+        this.client.connect().then(()=>{}).catch(()=> {console.log("Failed to connect to redis client");})
     }
 
     static getInstance(): ChatManager {
@@ -51,6 +55,12 @@ export class ChatManager {
                 if(!accessToken || !username) {
                     return;
                 }
+                // delete any previous instances if present
+                const prevSocket = this.connections.get(username);
+                if(prevSocket) {
+                    prevSocket.close();
+                    this.connections.delete(username);
+                }
                 const isValidUser = await this.authenticateUser(username, accessToken);
                 if(isValidUser) {
                     this.connections.set(username, ws);
@@ -88,7 +98,7 @@ export class ChatManager {
         return true;
     }
 
-    public sendNormalMessage(message: Message, ws: WebSocket) {
+    public async sendNormalMessage(message: Message, ws: WebSocket) {
         // call the authentication function
         const {sender, receiver, content} = message.content;
         if(!this.connections.has(sender)) {
@@ -100,8 +110,14 @@ export class ChatManager {
             return;
         }
         if(!this.connections.has(receiver)) {
-            // TODO:: NEED TO BE ABLE TO SEND MESSAGES TO OFFLINE USERS
-            return;
+            try {
+                await this.client.lPush("chat_message", JSON.stringify({ sender, receiver, content }));
+                return;
+            } catch(err) {
+                console.log(err);
+                ws.send("Server down send the message later or when the other side is online");
+                return;
+            }
         } else {
             const receiverConnection = this.connections.get(receiver);
             receiverConnection?.send(content);
