@@ -4,11 +4,13 @@ import { loginUser } from "../../controllers/userControllers/user.login-user";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { getCurrentUser } from "../../controllers/userControllers/user.getCurrentUser";
 import { validateToken } from "../../controllers/userControllers/user.validate-token";
+import { uniqueUsername } from "../../controllers/userControllers/user.uniqueUsername";
 
 const userRouter = Router();
 userRouter.route("/create-user").post(createNewUserHandler);
 userRouter.route("/login-user").post(loginUser);
 userRouter.route("/current-user").get(authMiddleware, getCurrentUser);
 userRouter.route("/validate-user").post(validateToken);
+userRouter.route("/unique-username/:username").get(uniqueUsername);
 
 export {userRouter}

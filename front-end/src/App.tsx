@@ -1,10 +1,32 @@
 import './App.css'
-import { Button } from "@/components/ui/button"
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Link,
+} from "react-router-dom";
+import { SignUp } from './custom-components/SignUp';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
+    const router = createBrowserRouter([
+        {
+            path: "/",
+            element: (
+            <div>
+                <Link to="/about">About Us</Link>
+            </div>
+            ),
+        },
+        {
+            path: "/sign-up",
+            element: <SignUp />,
+        }
+    ]);
+
     return (
         <div>
-        <Button>Click me</Button>
+            <RouterProvider router={router} />
+            <Toaster />
         </div>
     )
 }
