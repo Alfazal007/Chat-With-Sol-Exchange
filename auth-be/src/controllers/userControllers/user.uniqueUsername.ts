@@ -21,7 +21,7 @@ const uniqueUsername = asyncHandler(async(req: Request, res: Response) => {
             if(usernameAvailable) {
                 return res.status(200).json(new ApiResponse(200, "Already present", {}));
             }
-            return res.status(200).json(new ApiResponse(200, "Valid username", {}));
+            return res.status(200).json(new ApiResponse(200, "Username is available", {}));
         } catch(err) {
             return res.status(200).json(new ApiResponse(400, "Issue with the backend", {}));
         }

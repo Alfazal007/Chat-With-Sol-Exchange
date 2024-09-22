@@ -17,8 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import {Link,  useNavigate} from "react-router-dom";
 
 export function SignUp() {
+    const navigate = useNavigate();
     const [username, setUsername] = useState<string>("");
     const [isCheckingUsername, setIsCheckingUsername] =
         useState<boolean>(false);
@@ -32,9 +34,7 @@ export function SignUp() {
         defaultValues: {
             username: "",
             email: "",
-            password: "",
-            lastName: "",
-            firstName: ""
+            password: ""
         },
     });
 
@@ -47,7 +47,7 @@ export function SignUp() {
             setIsCheckingUsername(true);
             try {
                 const response = await axios.get(
-                    `/api/user/check-unique-username?username=${username}`
+                    `http://localhost:8000/api/v1/user/unique-username/${username}`
                 );
                 let message = response.data.message;
                 setUsernameMessage(message);
@@ -64,13 +64,14 @@ export function SignUp() {
     async function onSubmit(values: z.infer<typeof signUpSchema>) {
         setIsSubmitting(true);
         try {
-            const response = await axios.post("/api/user/sign-up", values);
-            if (response.data.statusCode == 200) {
+            const response = await axios.post("http://localhost:8000/api/v1/user/create-user", values);
+            if (response.data.statusCode == 201) {
                 toast({
                     title: "Success",
                     description:
-                        "Successfully signed up now verify your account",
+                        "Successfully signed up",
                 });
+                navigate("/sign-in");
             } else {
                 toast({
                     variant: "destructive",
@@ -213,17 +214,13 @@ export function SignUp() {
                 </Form>
                 <div className="text-center mr-4">
                     <p>
-                        {
-                            /*
                         Already a member?{" "}
                         <Link
-                            href={"/sign-in"}
+                            to={"/sign-in"}
                             className="text-blue-600 hover:text-blue-800"
                         >
                             Sign in
                         </Link>
-                        */
-                        }
                     </p>
                 </div>
             </div>
