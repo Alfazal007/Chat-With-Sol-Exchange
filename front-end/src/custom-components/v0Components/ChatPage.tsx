@@ -3,13 +3,34 @@ import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import axios from 'axios'
+import ChatSearchResult from './ChatSearched'
 
 export default function ChatPage() {
-    const [username, setUsername] = useState('')
+    const [username, setUsername] = useState('');
+    const [found, setFound] = useState(false);
+    const [visible, setIsVisible] = useState(false);
+    const [foundUsername, setFoundUsername] = useState("");
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log(`Searching for user: ${username}`)
+    const handleSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const userPresent = await axios.get(`http://localhost:8000/api/v1/user/get-username/${username}`, {
+            withCredentials: true
+        });
+        setFoundUsername(username);
+        setIsVisible(true);
+        if(userPresent.data.statusCode == 200) {
+            setFound(true);
+        } else if(userPresent.data.statusCode == 404) {
+            setFound(false);
+        }
+    }
+
+    const visibleFalse = () => {
+        setIsVisible(false);
+        setUsername("");
+        setFoundUsername("");
+        console.log("clicked");
     }
 
     return (
@@ -37,7 +58,10 @@ export default function ChatPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
-                <Button 
+                        { visible &&
+                            <ChatSearchResult userData={{setIsVisible: visibleFalse, username: foundUsername, found}} />
+                        }
+                <Button
                 type="submit" 
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
                 >
