@@ -12,5 +12,6 @@ userRouter.route("/login-user").post(loginUser);
 userRouter.route("/current-user").get(authMiddleware, getCurrentUser);
 userRouter.route("/validate-user").post(validateToken);
 userRouter.route("/unique-username/:username").get(uniqueUsername);
+userRouter.route("/current-user-cookie").get(authMiddleware, getCurrentUser);
 
 export {userRouter}

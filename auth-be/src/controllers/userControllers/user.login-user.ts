@@ -56,12 +56,16 @@ const loginUser = asyncHandler( async(req: Request, res: Response) => {
             } catch(err) {
                 return res.status(400).json(new ApiError(400, "Issue talking to the database"));
             }
-            const options = {
+            return res.status(200).cookie("accessToken", accessToken, {
                 httpOnly: true,
-                secure: true
-            };
-            return res.status(200).cookie("accessToken", accessToken, options)
-            .cookie("refreshToken", refreshToken, options)
+                secure: true,
+                sameSite: 'none'
+            })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none'
+            })
             .json(new ApiResponse(200, "Login successful", {
                     accessToken, refreshToken
             }));

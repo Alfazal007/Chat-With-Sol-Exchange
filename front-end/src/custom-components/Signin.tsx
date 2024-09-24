@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {  useState } from "react";
+import {  useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
@@ -16,8 +16,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {Link,  useNavigate} from "react-router-dom";
 import { loginUserType } from "@/zod/loginType";
+import {UserContext } from "@/context/UserContext";
 
 export function SignIn() {
+    const userContext = useContext(UserContext);
+    if(!userContext) {
+        return null;
+    }
+    const {setUser, setAccessToken, setRefreshToken} = userContext;
     const navigate = useNavigate();
 
     const { toast } = useToast();
@@ -45,7 +51,13 @@ export function SignIn() {
                     description:
                         "Successfully logged in",
                 });
-                navigate("/chat");
+                const currentUser = await axios.get("http://localhost:8000/api/v1/user/current-user-cookie", {withCredentials: true});
+                if(currentUser.data.statusCode == 200 && currentUser.data.data) {
+                    setUser(currentUser.data.data);
+                    setAccessToken(response.data.data?.accessToken || "");
+                    setRefreshToken(response.data.data?.refreshToken || "");
+                    navigate("/chat");
+                }
             } else {
                 toast({
                     variant: "destructive",

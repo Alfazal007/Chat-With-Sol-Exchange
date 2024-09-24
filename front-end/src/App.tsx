@@ -8,6 +8,7 @@ import { SignUp } from './custom-components/SignUp';
 import { Toaster } from './components/ui/toaster';
 import {SignIn} from './custom-components/Signin';
 import Chat from './custom-components/Chat';
+import UserProvider from './context/UserContext';
 
 function App() {
     const router = createBrowserRouter([
@@ -35,8 +36,10 @@ function App() {
 
     return (
         <div>
-            <RouterProvider router={router} />
-            <Toaster />
+            <UserProvider>
+                <RouterProvider router={router} />
+                <Toaster />
+            </UserProvider>
         </div>
     )
 }

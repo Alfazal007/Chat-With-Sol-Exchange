@@ -68,6 +68,7 @@ export class ChatManager {
                     ws.close();
                     return;
                 }
+                console.log(this.connections);
             } else if(message.type == Chat_Message) {
                 this.sendNormalMessage(message, ws);
             } else if(message.type == Disconnect_Message) {
