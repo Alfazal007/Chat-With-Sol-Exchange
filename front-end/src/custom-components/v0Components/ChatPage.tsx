@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -30,15 +29,11 @@ export default function ChatPage() {
         setIsVisible(false);
         setUsername("");
         setFoundUsername("");
-        console.log("clicked");
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
-        <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+        <div
             className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
         >
             <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Chat Search</h1>
@@ -54,22 +49,20 @@ export default function ChatPage() {
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             </div>
-            <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            <div
             >
                         { visible &&
                             <ChatSearchResult userData={{setIsVisible: visibleFalse, username: foundUsername, found}} />
                         }
                 <Button
                 type="submit" 
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+                className="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
                 >
                 Search
                 </Button>
-            </motion.div>
+            </div>
             </form>
-        </motion.div>
+        </div>
         </div>
       )
 }

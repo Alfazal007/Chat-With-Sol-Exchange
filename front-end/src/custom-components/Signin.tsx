@@ -56,7 +56,7 @@ export function SignIn() {
                     setUser(currentUser.data.data);
                     setAccessToken(response.data.data?.accessToken || "");
                     setRefreshToken(response.data.data?.refreshToken || "");
-                    navigate("/chat");
+                    navigate("/new-chat");
                 }
             } else {
                 toast({

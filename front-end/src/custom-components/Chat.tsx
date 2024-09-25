@@ -10,7 +10,7 @@ const Chat = () => {
     const userContext = useContext(UserContext);
     const navigate = useNavigate();
     if (!userContext) {
-        navigate("/login");
+        navigate("/sign-in");
         return null;
     }
     const {user, accessToken} = userContext || {};

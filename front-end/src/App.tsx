@@ -29,7 +29,7 @@ function App() {
             element: <SignIn />,
         },
         {
-            path: "/chat",
+            path: "/new-chat",
             element: <Chat />,
         },
     ]);
