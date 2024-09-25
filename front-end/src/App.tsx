@@ -9,6 +9,7 @@ import { Toaster } from './components/ui/toaster';
 import {SignIn} from './custom-components/Signin';
 import Chat from './custom-components/Chat';
 import UserProvider from './context/UserContext';
+import ChatPage from './custom-components/v0Components/ChattingPage';
 
 function App() {
     const router = createBrowserRouter([
@@ -31,6 +32,10 @@ function App() {
         {
             path: "/new-chat",
             element: <Chat />,
+        },
+        {
+            path: "/chat",
+            element: <ChatPage />,
         },
     ]);
 

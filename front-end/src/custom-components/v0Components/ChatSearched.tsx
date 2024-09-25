@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import { useNavigate } from 'react-router-dom';
 
 export interface UserData {
     found: boolean;
@@ -12,6 +13,10 @@ export interface ChatSearchResultProps {
 }
 
 export default function ChatSearchResult({ userData }: ChatSearchResultProps) {
+    function chatOpener() {
+        navigate("/chat")
+    }
+    const navigate = useNavigate();
     return (
         <div>
             {userData && (
@@ -19,7 +24,7 @@ export default function ChatSearchResult({ userData }: ChatSearchResultProps) {
                     <div className="relative">
                         {userData.found ? (
                             <div className="flex items-center p-2 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100">
-                                <span className="font-medium text-blue-800 pl-3">{userData.username}</span>
+                                <span className="font-medium text-blue-800 pl-3" onClick={chatOpener}>{userData.username}</span>
                             </div>
                         ) : (
                             <div className="flex items-center p-2 bg-red-50 rounded-lg">

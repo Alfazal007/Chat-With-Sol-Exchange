@@ -2,9 +2,9 @@ import { UserContext } from "@/context/UserContext"
 import { useSocket } from "@/hooks/useSocket";
 import { useContext, useEffect} from "react"
 import { useNavigate } from "react-router-dom";
-import ChatPage from "./v0Components/ChatPage";
 import { Loader2Icon } from "lucide-react";
 import { Init_Message, Message } from "@/wsMessages/MessageTypes";
+import ChatSearcher from "./v0Components/ChatPage";
 
 const Chat = () => {
     const userContext = useContext(UserContext);
@@ -38,7 +38,7 @@ const Chat = () => {
     }
     return (
         <div>
-            <ChatPage />
+            <ChatSearcher />
         </div>
     )
 }

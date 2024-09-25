@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { UserContext } from '@/context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '@/hooks/useSocket'
+import ChatSearcher from './ChatPage'
 
 interface ChatPreview {
     id: string
@@ -26,6 +27,13 @@ interface Message {
 }
 
 export default function ChatPage() {
+    const [selectedChat, setSelectedChat] = useState<string | null>(null);
+    const [messageToBeSent, setMessageToBeSent] = useState<string>("");
+    const [chats, setChats] = useState<Chats[]>([]);
+    const [chatPreviews, setChatPreviews] = useState<ChatPreview[]>([]);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+    const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
+
     const userContext = useContext(UserContext);
     const navigate = useNavigate();
     if (!userContext) {
@@ -46,22 +54,12 @@ export default function ChatPage() {
         return <Loader2Icon />;
     }
 
-    const [selectedChat, setSelectedChat] = useState<string | null>(null);
-    const [messageToBeSent, setMessageToBeSent] = useState<string>("");
-//    const [newMessage, setNewMessage] = useState<Message | null>(null);
-    const [chats, setChats] = useState<Chats[]>([]);
-    const [chatPreviews, setChatPreviews] = useState<ChatPreview[]>([]);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
-
-
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
         // Here you would typically send the message to your backend
         // const {sender, receiver, content} = message.content;
         //socket.send()
     }
-
     socket.onmessage = (event) => {
         const messageReceived = JSON.parse(event.data);
         const {sender, content} = messageReceived;
@@ -103,16 +101,17 @@ export default function ChatPage() {
             setChatPreviews((chats) => [...chats, {id: sender, name: sender, lastMessage: content}])
         }
     }
-
     return (
         <div className="flex h-screen bg-gray-100">
-        {/* Chat List */}
-        <div 
+        <div
             className={`bg-white w-full md:w-1/3 lg:w-1/4 border-r ${isMobileMenuOpen ? 'block' : 'hidden md:block'}`}
         >
             <ScrollArea className="h-full">
             <div className="p-4">
                 <h2 className="text-xl font-bold mb-4">Chats</h2>
+                <div className='top-0'>
+                    <ChatSearcher />
+                </div>
                 {chatPreviews.map((chat) => (
                 <div
                     key={chat.id}
@@ -183,7 +182,7 @@ export default function ChatPage() {
                 onChange={(e) => setMessageToBeSent(e.target.value)}
                 className="flex-1"
                 />
-                <Button type="submit">
+                <Button type="submit" className="bg-blue-600">
                 <Send className="h-4 w-4 mr-2" />
                 Send
                 </Button>

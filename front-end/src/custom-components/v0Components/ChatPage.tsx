@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import axios from 'axios'
 import ChatSearchResult from './ChatSearched'
 
-export default function ChatPage() {
+export default function ChatSearcher() {
     const [username, setUsername] = useState('');
     const [found, setFound] = useState(false);
     const [visible, setIsVisible] = useState(false);
@@ -32,11 +32,10 @@ export default function ChatPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
+        <div className="flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
         <div
             className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
         >
-            <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Chat Search</h1>
             <form onSubmit={handleSearch} className="space-y-4">
             <div className="relative">
                 <Input
