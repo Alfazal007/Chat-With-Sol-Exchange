@@ -1,26 +1,62 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import axios from 'axios'
 import ChatSearchResult from './ChatSearched'
+import { Chats, Message } from './ChattingPage'
 
-export default function ChatSearcher() {
+export default function ChatSearcher({chats, setChats, setSelectedMessages, setSelectedChat}: {chats: Chats[], setChats: React
+    .Dispatch<React.SetStateAction<Chats[]>>, setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>,
+    setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>> }) {
     const [username, setUsername] = useState('');
     const [found, setFound] = useState(false);
     const [visible, setIsVisible] = useState(false);
     const [foundUsername, setFoundUsername] = useState("");
 
+    const openSearchedChat = () => {
+        console.log({chats})
+        if(!found || !foundUsername || !visible) {
+            setSelectedChat(null);
+            setIsVisible(false);
+            setFound(false);
+            return;
+        }
+        for(let i = 0; i < chats.length; i++) {
+            if(chats[i].id == username) {
+                setSelectedChat(foundUsername);
+                return;
+            }
+        }
+        setChats((chats) => [...chats, {id: foundUsername, messages: []}]);
+        setFound(false);
+        setIsVisible(false);
+        setSelectedChat(foundUsername);
+    }
+
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        const userPresent = await axios.get(`http://localhost:8000/api/v1/user/get-username/${username}`, {
-            withCredentials: true
-        });
-        setFoundUsername(username);
-        setIsVisible(true);
-        if(userPresent.data.statusCode == 200) {
-            setFound(true);
-        } else if(userPresent.data.statusCode == 404) {
+        try {
+            for(let i = 0; i < chats.length; i++) {
+                if(chats[i].id == username) {
+                    setIsVisible(true);
+                    setFound(true);
+                    setFoundUsername(username);
+                    return;
+                }
+            }
+            const userPresent = await axios.get(`http://localhost:8000/api/v1/user/get-username/${username}`, {
+                withCredentials: true
+            });
+            setFoundUsername(username);
+            setIsVisible(true);
+            if(userPresent.data.statusCode == 200) {
+                setFound(true);
+            } else if(userPresent.data.statusCode == 404) {
+                setFound(false);
+            }
+        } catch(err) {
+            setIsVisible(true);
             setFound(false);
         }
     }
@@ -33,7 +69,8 @@ export default function ChatSearcher() {
 
     return (
         <div className="flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
-        <div
+        {JSON.stringify(setSelectedMessages)}
+            <div
             className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
         >
             <form onSubmit={handleSearch} className="space-y-4">
@@ -51,7 +88,8 @@ export default function ChatSearcher() {
             <div
             >
                         { visible &&
-                            <ChatSearchResult userData={{setIsVisible: visibleFalse, username: foundUsername, found}} />
+                            <ChatSearchResult
+                                userData={{userData: {setIsVisibler: visibleFalse, username: foundUsername, found}}} openSearchedChat={openSearchedChat} />
                         }
                 <Button
                 type="submit" 

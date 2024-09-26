@@ -14,13 +14,13 @@ interface ChatPreview {
     lastMessage: string
 }
 
-interface Chats {
+export interface Chats {
     id: string
     messages: Message[]
 }
 
 
-interface Message {
+export interface Message {
     id: string
     sender: string
     content: string
@@ -110,7 +110,7 @@ export default function ChatPage() {
             <div className="p-4">
                 <h2 className="text-xl font-bold mb-4">Chats</h2>
                 <div className='top-0'>
-                    <ChatSearcher />
+                    <ChatSearcher chats={chats} setChats={setChats} setSelectedMessages={setSelectedMessages} setSelectedChat={setSelectedChat} />
                 </div>
                 {chatPreviews.map((chat) => (
                 <div
@@ -141,7 +141,7 @@ export default function ChatPage() {
             {/* Chat Header */}
             <div className="bg-white p-4 border-b flex justify-between items-center">
             <h2 className="text-xl font-bold">
-                {selectedChat ? chatPreviews.find(chat => chat.id === selectedChat)?.name : 'Select a chat'}
+                {selectedChat || "Selected a chat"}
             </h2>
             <Button
                 variant="ghost"
