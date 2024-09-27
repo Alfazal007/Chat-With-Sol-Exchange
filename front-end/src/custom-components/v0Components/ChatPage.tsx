@@ -4,11 +4,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import axios from 'axios'
 import ChatSearchResult from './ChatSearched'
-import { Chats, Message } from './ChattingPage'
+import { ChatPreview, Chats, Message } from './ChattingPage'
 
-export default function ChatSearcher({chats, setChats, setSelectedMessages, setSelectedChat}: {chats: Chats[], setChats: React
+export default function ChatSearcher({chats, setChats, setSelectedMessages, setSelectedChat, setChatPreviews}: {chats: Chats[], setChats: React
     .Dispatch<React.SetStateAction<Chats[]>>, setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>,
-    setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>> }) {
+    setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>>, setChatPreviews: React.Dispatch<React.SetStateAction<ChatPreview[]>> }) {
     const [username, setUsername] = useState('');
     const [found, setFound] = useState(false);
     const [visible, setIsVisible] = useState(false);
@@ -25,10 +25,13 @@ export default function ChatSearcher({chats, setChats, setSelectedMessages, setS
         for(let i = 0; i < chats.length; i++) {
             if(chats[i].id == username) {
                 setSelectedChat(foundUsername);
+                setSelectedMessages(chats[i].messages)
                 return;
             }
         }
         setChats((chats) => [...chats, {id: foundUsername, messages: []}]);
+        setSelectedMessages([])
+        setChatPreviews((chat) => [...chat, {id: foundUsername, name: foundUsername, lastMessage: ""}])
         setFound(false);
         setIsVisible(false);
         setSelectedChat(foundUsername);

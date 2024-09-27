@@ -3,18 +3,21 @@ import { useEffect, useState } from "react";
 const WS_URL = "ws://localhost:8001";
 
 export const useSocket = () => {
+    const [isConnecting, setIsConnecting] = useState(false);
     const [socket, setSocket] = useState<WebSocket | null>(null);
     useEffect(() => {
+        setIsConnecting(true);
         const ws = new WebSocket(WS_URL);
         ws.onopen = () => {
-            console.log("Here");
             setSocket(ws);
+            setIsConnecting(false);
         };
         ws.onclose = () => {
             setSocket(null);
+            setIsConnecting(false);
         };
         return () => {
-            ws.close();
+            //ws.close();
         };
     }, []);
     return socket;

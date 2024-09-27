@@ -7,8 +7,9 @@ import { UserContext } from '@/context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '@/hooks/useSocket'
 import ChatSearcher from './ChatPage'
+import { Chat_Message, Init_Message } from '@/wsMessages/MessageTypes'
 
-interface ChatPreview {
+export interface ChatPreview {
     id: string
     name: string
     lastMessage: string
@@ -47,26 +48,94 @@ export default function ChatPage() {
             navigate("/sign-in");
             return;
         }
+        if(socket && user) {
+            const initMessage: { type: String, content: Record<string, string> } = {
+                type: Init_Message,
+                content: {
+                    accessToken,
+                    username: user.username
+                }
+        };
+        console.log({initMessage})
+        socket.send(JSON.stringify(initMessage));
         // TODO:: fetch the unread messages first
-    }, [userContext, user, navigate, socket]);
+    }}, [userContext, user, navigate, socket]);
+    useEffect(()=>{
+        if(!socket) {
+            return;
+        }
+        socket.onmessage = (event) => {
+            console.log({event})
+            console.log(event.data)
+            const messageReceived = JSON.parse(event.data);
+            const {sender, content} = messageReceived;
+            let isPresent = false;
+            for(let i = 0; i < chats.length; i++) {
+                let chat = chats[i];
+                if(chat.id == sender) {
+                    // found the chat just update the method
+                    isPresent = true;
+                    break;
+                }
+            }
+            if(isPresent) {
+                setChats((chats) => {
+                    return chats.map((chat) => chat.id != sender ? chat : {
+                        id: sender,
+                        messages: [...chat.messages, {
+                            id: sender,
+                            sender,
+                            content
+                        }]
+                    })
+                });
+                setChatPreviews((chats) => {
+                    return chats.map((chatPrev) => chatPrev.id != sender ? chatPrev: {
+                        id: sender,
+                        name: sender,
+                        lastMessage: content
+                    })
+                });
+            } else {
+                setChats((chats) => [...chats, {id: sender, messages: [
+                    {
+                        id: sender,
+                        sender,
+                        content
+                    }
+                ]}]);
+                setChatPreviews((chats) => [...chats, {id: sender, name: sender, lastMessage: content}])
+            }
+        }
+    }, [socket])
 
     if(!socket || !user) {
+        console.log({socket})
+        console.log({user})
         return <Loader2Icon />;
     }
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
-        // Here you would typically send the message to your backend
-        // const {sender, receiver, content} = message.content;
-        //socket.send()
-    }
-    socket.onmessage = (event) => {
-        const messageReceived = JSON.parse(event.data);
-        const {sender, content} = messageReceived;
+        console.log({chats})
+        console.log({chatPreviews})
+        if(!selectedChat) {
+            return;
+        }
+        const messageBeingSent = {
+            type: Chat_Message,
+            content: {
+                sender: user.username,
+                receiver: selectedChat,
+                content: messageToBeSent
+            }
+        }
+        socket.send(JSON.stringify(messageBeingSent));
+        /**/
         let isPresent = false;
         for(let i = 0; i < chats.length; i++) {
             let chat = chats[i];
-            if(chat.id == sender) {
+            if(chat.id == selectedChat) {
                 // found the chat just update the method
                 isPresent = true;
                 break;
@@ -74,34 +143,38 @@ export default function ChatPage() {
         }
         if(isPresent) {
             setChats((chats) => {
-                return chats.map((chat) => chat.id != sender ? chat : {
-                    id: sender,
+                return chats.map((chat) => chat.id != selectedChat ? chat : {
+                    id: selectedChat,
                     messages: [...chat.messages, {
-                        id: sender,
-                        sender,
-                        content
+                        id: selectedChat,
+                        sender: user.username,
+                        content: messageToBeSent
                     }]
                 })
             });
+
             setChatPreviews((chats) => {
-                return chats.map((chatPrev) => chatPrev.id != sender ? chatPrev: {
-                    id: sender,
-                    name: sender,
-                    lastMessage: content
+                return chats.map((chatPrev) => chatPrev.id != selectedChat ? chatPrev: {
+                    id: selectedChat,
+                    name: selectedChat,
+                    lastMessage: messageToBeSent
                 })
             });
         } else {
-            setChats((chats) => [...chats, {id: sender, messages: [
+            setChats((chats) => [...chats, {id: selectedChat, messages: [
                 {
-                    id: sender,
-                    sender,
-                    content
+                    id: selectedChat,
+                    sender: user.username,
+                    content: messageToBeSent
                 }
             ]}]);
-            setChatPreviews((chats) => [...chats, {id: sender, name: sender, lastMessage: content}])
+            setChatPreviews((chats) => 
+                [...chats, {id: selectedChat, 
+                name: user.username, lastMessage: messageToBeSent}])
         }
+        setMessageToBeSent("");
     }
-    return (
+        return (
         <div className="flex h-screen bg-gray-100">
         <div
             className={`bg-white w-full md:w-1/3 lg:w-1/4 border-r ${isMobileMenuOpen ? 'block' : 'hidden md:block'}`}
@@ -110,7 +183,7 @@ export default function ChatPage() {
             <div className="p-4">
                 <h2 className="text-xl font-bold mb-4">Chats</h2>
                 <div className='top-0'>
-                    <ChatSearcher chats={chats} setChats={setChats} setSelectedMessages={setSelectedMessages} setSelectedChat={setSelectedChat} />
+                    <ChatSearcher setChatPreviews={setChatPreviews} chats={chats} setChats={setChats} setSelectedMessages={setSelectedMessages} setSelectedChat={setSelectedChat} />
                 </div>
                 {chatPreviews.map((chat) => (
                 <div
