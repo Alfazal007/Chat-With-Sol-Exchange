@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSocket } from '@/hooks/useSocket'
 import ChatSearcher from './ChatPage'
 import { Chat_Message, Init_Message } from '@/wsMessages/MessageTypes'
+import {nanoid} from 'nanoid'
 
 export interface ChatPreview {
     id: string
@@ -27,13 +28,19 @@ export interface Message {
     content: string
 }
 
+export type ChatMapType<K, V> = Map<K, V>;
+
+
 export default function ChatPage() {
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [messageToBeSent, setMessageToBeSent] = useState<string>("");
-    const [chats, setChats] = useState<Chats[]>([]);
-    const [chatPreviews, setChatPreviews] = useState<ChatPreview[]>([]);
+    const [chats, setChats] = useState<ChatMapType<string, Chats>>(new Map());
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
     const [selectedMessages, setSelectedMessages] = useState<Message[]>([]);
+
+    const updateChat = (key: string, value: Chats) => {
+        setChats(new Map(chats.set(key, value)));
+    }
 
     const userContext = useContext(UserContext);
     const navigate = useNavigate();
@@ -56,7 +63,6 @@ export default function ChatPage() {
                     username: user.username
                 }
         };
-        console.log({initMessage})
         socket.send(JSON.stringify(initMessage));
         // TODO:: fetch the unread messages first
     }}, [userContext, user, navigate, socket]);
@@ -65,47 +71,37 @@ export default function ChatPage() {
             return;
         }
         socket.onmessage = (event) => {
-            console.log({event})
-            console.log(event.data)
             const messageReceived = JSON.parse(event.data);
             const {sender, content} = messageReceived;
-            let isPresent = false;
-            for(let i = 0; i < chats.length; i++) {
-                let chat = chats[i];
-                if(chat.id == sender) {
-                    // found the chat just update the method
-                    isPresent = true;
-                    break;
+            if(chats.has(sender)) {
+                // logic of isPresent
+                console.log("has sender")
+                const valueToBeUpdated = chats.get(sender);
+                if(!valueToBeUpdated) {
+                    updateChat(sender, {messages: [{id: nanoid(), content, sender}], id: sender})
+                } else {
+                    const prevMessages = valueToBeUpdated.messages;
+                    const newMessages = [...prevMessages, {sender, content, id: nanoid()}]
+                    console.log("old messages");
+                    console.log({prevMessages});
+                    console.log("new messages");
+                    console.log({newMessages});
+                    updateChat(sender, {id: sender, messages: newMessages});
+                    console.log("after update");
+                    console.log({chats});
+
                 }
-            }
-            if(isPresent) {
-                setChats((chats) => {
-                    return chats.map((chat) => chat.id != sender ? chat : {
-                        id: sender,
-                        messages: [...chat.messages, {
-                            id: sender,
-                            sender,
-                            content
-                        }]
-                    })
-                });
-                setChatPreviews((chats) => {
-                    return chats.map((chatPrev) => chatPrev.id != sender ? chatPrev: {
-                        id: sender,
-                        name: sender,
-                        lastMessage: content
-                    })
-                });
             } else {
-                setChats((chats) => [...chats, {id: sender, messages: [
-                    {
-                        id: sender,
-                        sender,
-                        content
-                    }
-                ]}]);
-                setChatPreviews((chats) => [...chats, {id: sender, name: sender, lastMessage: content}])
+                // logic of not present
+                console.log("does not have sender,  creating new sender")
+                updateChat(sender, {id: sender, messages: [{content, sender, id: nanoid()}]});
             }
+            if(sender == selectedChat) {
+                setSelectedChat(sender);
+                setSelectedMessages(chats.get(sender)?.messages || []);
+            }
+            console.log("Message came in");
+            console.log({chats});
         }
     }, [socket])
 
@@ -117,8 +113,6 @@ export default function ChatPage() {
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
-        console.log({chats})
-        console.log({chatPreviews})
         if(!selectedChat) {
             return;
         }
@@ -132,47 +126,24 @@ export default function ChatPage() {
         }
         socket.send(JSON.stringify(messageBeingSent));
         /**/
-        let isPresent = false;
-        for(let i = 0; i < chats.length; i++) {
-            let chat = chats[i];
-            if(chat.id == selectedChat) {
-                // found the chat just update the method
-                isPresent = true;
-                break;
+        if(chats.has(selectedChat)) {
+            // logic of isPresent
+            const valueToBeUpdated = chats.get(selectedChat);
+            if(!valueToBeUpdated) {
+                updateChat(selectedChat, {messages: [{content: messageToBeSent, sender: user.username, id: nanoid()}], id: selectedChat});
+            } else {
+                updateChat(selectedChat, {id: selectedChat,
+                messages: [...valueToBeUpdated.messages, {content: messageToBeSent, sender: user.username, id: nanoid()}]})
             }
-        }
-        if(isPresent) {
-            setChats((chats) => {
-                return chats.map((chat) => chat.id != selectedChat ? chat : {
-                    id: selectedChat,
-                    messages: [...chat.messages, {
-                        id: selectedChat,
-                        sender: user.username,
-                        content: messageToBeSent
-                    }]
-                })
-            });
-
-            setChatPreviews((chats) => {
-                return chats.map((chatPrev) => chatPrev.id != selectedChat ? chatPrev: {
-                    id: selectedChat,
-                    name: selectedChat,
-                    lastMessage: messageToBeSent
-                })
-            });
         } else {
-            setChats((chats) => [...chats, {id: selectedChat, messages: [
-                {
-                    id: selectedChat,
-                    sender: user.username,
-                    content: messageToBeSent
-                }
-            ]}]);
-            setChatPreviews((chats) => 
-                [...chats, {id: selectedChat, 
-                name: user.username, lastMessage: messageToBeSent}])
+            // logic of not present
+            updateChat(selectedChat, {id: selectedChat, messages: [{id: nanoid(), sender: user.username, content: messageToBeSent}]})
         }
+        setSelectedChat(selectedChat);
+        setSelectedMessages(chats.get(selectedChat)?.messages || []);
         setMessageToBeSent("");
+        console.log("message went out");
+        console.log({chats});
     }
         return (
         <div className="flex h-screen bg-gray-100">
@@ -183,26 +154,24 @@ export default function ChatPage() {
             <div className="p-4">
                 <h2 className="text-xl font-bold mb-4">Chats</h2>
                 <div className='top-0'>
-                    <ChatSearcher setChatPreviews={setChatPreviews} chats={chats} setChats={setChats} setSelectedMessages={setSelectedMessages} setSelectedChat={setSelectedChat} />
+                    <ChatSearcher chats={chats} setChats={updateChat} setSelectedMessages={setSelectedMessages} setSelectedChat={setSelectedChat} />
                 </div>
-                {chatPreviews.map((chat) => (
+                {Array.from(chats.entries()).map(([id, chat]) => (
                 <div
-                    key={chat.id}
+                    key={nanoid()}
                     className={`p-3 rounded-lg mb-2 cursor-pointer ${
-                    selectedChat === chat.id ? 'bg-blue-100' : 'hover:bg-gray-100'
+                    selectedChat === id ? 'bg-blue-100' : 'hover:bg-gray-100'
                     }`}
                     onClick={() => {
-                    setSelectedChat(chat.id)
+                    setSelectedChat(id)
                     setIsMobileMenuOpen(false)
-                    chats.map((chat)=>{
-                        if(chat.id == selectedChat) {
-                            setSelectedMessages(chat.messages)
-                        }
-                    });
+                    if(chat.id == selectedChat) {
+                        setSelectedMessages(chat.messages)
+                    }
                     }}
                 >
-                    <div className="font-semibold">{chat.name}</div>
-                    <div className="text-sm text-gray-500">{chat.lastMessage}</div>
+                    <div className="font-semibold">{chat.id}</div>
+                    <div className="text-sm text-gray-500">{chat.messages[chat.messages.length - 1].content || ""}</div>
                 </div>
                 ))}
             </div>

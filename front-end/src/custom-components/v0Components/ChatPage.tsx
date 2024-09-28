@@ -4,34 +4,24 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import axios from 'axios'
 import ChatSearchResult from './ChatSearched'
-import { ChatPreview, Chats, Message } from './ChattingPage'
+import { ChatMapType, Chats, Message } from './ChattingPage'
 
-export default function ChatSearcher({chats, setChats, setSelectedMessages, setSelectedChat, setChatPreviews}: {chats: Chats[], setChats: React
-    .Dispatch<React.SetStateAction<Chats[]>>, setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>,
-    setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>>, setChatPreviews: React.Dispatch<React.SetStateAction<ChatPreview[]>> }) {
+export default function ChatSearcher({chats, setSelectedMessages, setSelectedChat}: {chats: ChatMapType<string, Chats>, setChats: (key: string, value: Chats) => void, setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>,
+    setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>> }) {
     const [username, setUsername] = useState('');
     const [found, setFound] = useState(false);
     const [visible, setIsVisible] = useState(false);
     const [foundUsername, setFoundUsername] = useState("");
 
     const openSearchedChat = () => {
-        console.log({chats})
         if(!found || !foundUsername || !visible) {
             setSelectedChat(null);
             setIsVisible(false);
             setFound(false);
             return;
         }
-        for(let i = 0; i < chats.length; i++) {
-            if(chats[i].id == username) {
-                setSelectedChat(foundUsername);
-                setSelectedMessages(chats[i].messages)
-                return;
-            }
-        }
-        setChats((chats) => [...chats, {id: foundUsername, messages: []}]);
-        setSelectedMessages([])
-        setChatPreviews((chat) => [...chat, {id: foundUsername, name: foundUsername, lastMessage: ""}])
+        setSelectedChat(foundUsername);
+        setSelectedMessages(chats.get(foundUsername)?.messages || []);
         setFound(false);
         setIsVisible(false);
         setSelectedChat(foundUsername);
@@ -40,13 +30,11 @@ export default function ChatSearcher({chats, setChats, setSelectedMessages, setS
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            for(let i = 0; i < chats.length; i++) {
-                if(chats[i].id == username) {
-                    setIsVisible(true);
-                    setFound(true);
-                    setFoundUsername(username);
-                    return;
-                }
+            if(chats.has(username)) {
+                setIsVisible(true);
+                setFound(true);
+                setFoundUsername(username);
+                return;
             }
             const userPresent = await axios.get(`http://localhost:8000/api/v1/user/get-username/${username}`, {
                 withCredentials: true
