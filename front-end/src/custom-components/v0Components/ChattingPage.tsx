@@ -75,39 +75,27 @@ export default function ChatPage() {
             const {sender, content} = messageReceived;
             if(chats.has(sender)) {
                 // logic of isPresent
-                console.log("has sender")
                 const valueToBeUpdated = chats.get(sender);
                 if(!valueToBeUpdated) {
                     updateChat(sender, {messages: [{id: nanoid(), content, sender}], id: sender})
                 } else {
                     const prevMessages = valueToBeUpdated.messages;
                     const newMessages = [...prevMessages, {sender, content, id: nanoid()}]
-                    console.log("old messages");
-                    console.log({prevMessages});
-                    console.log("new messages");
-                    console.log({newMessages});
                     updateChat(sender, {id: sender, messages: newMessages});
-                    console.log("after update");
-                    console.log({chats});
 
                 }
             } else {
                 // logic of not present
-                console.log("does not have sender,  creating new sender")
                 updateChat(sender, {id: sender, messages: [{content, sender, id: nanoid()}]});
             }
             if(sender == selectedChat) {
                 setSelectedChat(sender);
                 setSelectedMessages(chats.get(sender)?.messages || []);
             }
-            console.log("Message came in");
-            console.log({chats});
         }
-    }, [socket])
+    }, [socket, chats])
 
     if(!socket || !user) {
-        console.log({socket})
-        console.log({user})
         return <Loader2Icon />;
     }
 
@@ -142,8 +130,6 @@ export default function ChatPage() {
         setSelectedChat(selectedChat);
         setSelectedMessages(chats.get(selectedChat)?.messages || []);
         setMessageToBeSent("");
-        console.log("message went out");
-        console.log({chats});
     }
         return (
         <div className="flex h-screen bg-gray-100">
@@ -165,9 +151,7 @@ export default function ChatPage() {
                     onClick={() => {
                     setSelectedChat(id)
                     setIsMobileMenuOpen(false)
-                    if(chat.id == selectedChat) {
-                        setSelectedMessages(chat.messages)
-                    }
+                    setSelectedMessages(chat.messages)
                     }}
                 >
                     <div className="font-semibold">{chat.id}</div>
