@@ -199,21 +199,24 @@ export default function ChatPage() {
             </ScrollArea>
 
             {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="bg-white p-4 border-t">
-            <div className="flex space-x-2">
-                <Input
-                type="text"
-                placeholder="Type a message..."
-                value={messageToBeSent}
-                onChange={(e) => setMessageToBeSent(e.target.value)}
-                className="flex-1"
-                />
-                <Button type="submit" className="bg-blue-600">
-                <Send className="h-4 w-4 mr-2" />
-                Send
-                </Button>
-            </div>
-            </form>
+                {
+                    selectedChat && 
+                    <form onSubmit={handleSendMessage} className="bg-white p-4 border-t">
+                    <div className="flex space-x-2">
+                        <Input
+                        type="text"
+                        placeholder="Type a message..."
+                        value={messageToBeSent}
+                        onChange={(e) => setMessageToBeSent(e.target.value)}
+                        className="flex-1"
+                        />
+                        <Button type="submit" className="bg-blue-600">
+                        <Send className="h-4 w-4 mr-2" />
+                        Send
+                        </Button>
+                    </div>
+                    </form>
+                }
         </div>
         </div>
     )

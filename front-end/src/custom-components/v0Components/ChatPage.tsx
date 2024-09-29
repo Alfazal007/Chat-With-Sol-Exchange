@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import axios from 'axios'
 import ChatSearchResult from './ChatSearched'
 import { ChatMapType, Chats, Message } from './ChattingPage'
+import SolPayerComponent from './SolPayerComponent'
 
 export default function ChatSearcher({chats, setSelectedMessages, setSelectedChat}: {chats: ChatMapType<string, Chats>, setChats: (key: string, value: Chats) => void, setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>,
     setSelectedMessages: React.Dispatch<React.SetStateAction<Message[]>> }) {
@@ -12,7 +13,7 @@ export default function ChatSearcher({chats, setSelectedMessages, setSelectedCha
     const [found, setFound] = useState(false);
     const [visible, setIsVisible] = useState(false);
     const [foundUsername, setFoundUsername] = useState("");
-
+    const [isVisibleSol, setIsVisibleSol] = useState<boolean>(false);
     const openSearchedChat = () => {
         if(!found || !foundUsername || !visible) {
             setSelectedChat(null);
@@ -62,7 +63,7 @@ export default function ChatSearcher({chats, setSelectedMessages, setSelectedCha
         <div className="flex items-center justify-center bg-gradient-to-r from-blue-100 to-purple-100">
         {JSON.stringify(setSelectedMessages)}
             <div
-            className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg"
+            className="w-full max-w-md p-8 bg-white rounded-lg shadow-sm"
         >
             <form onSubmit={handleSearch} className="space-y-4">
             <div className="relative">
@@ -88,8 +89,19 @@ export default function ChatSearcher({chats, setSelectedMessages, setSelectedCha
                 >
                 Search
                 </Button>
+                <Button
+                onClick={()=>{setIsVisibleSol((prev) => !prev)}}
+                className="w-full mt-2 hidden lg:block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+                >
+                {isVisibleSol ? ("Hide") : ("Show")} Send Sol
+                </Button>
             </div>
             </form>
+                { isVisibleSol &&
+                    <div>
+                        <SolPayerComponent />
+                    </div>
+                }
         </div>
         </div>
       )

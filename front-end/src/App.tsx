@@ -2,7 +2,6 @@ import './App.css'
 import {
   createBrowserRouter,
   RouterProvider,
-  Link,
 } from "react-router-dom";
 import { SignUp } from './custom-components/SignUp';
 import { Toaster } from './components/ui/toaster';
@@ -25,14 +24,6 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 function App() {
     const router = createBrowserRouter([
         {
-            path: "/",
-            element: (
-            <div>
-                <Link to="/about">About Us</Link>
-            </div>
-            ),
-        },
-        {
             path: "/sign-up",
             element: <SignUp />,
         },
@@ -49,7 +40,7 @@ function App() {
             element: <ChatPage />,
         },
     ]);
-    const endpoint = clusterApiUrl("devnet");
+    const endpoint = clusterApiUrl("mainnet-beta");
 
     return (
         <div>

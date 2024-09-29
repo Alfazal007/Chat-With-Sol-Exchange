@@ -51,9 +51,10 @@ export default function SolPayerComponent() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600">
-        <div className="bg-white p-8 rounded-xl shadow-2xl w-96 space-y-6">
+        <div className="flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-2xl">
             <WalletMultiButton />
+                <div className="m-2"></div>
             <WalletDisconnectButton />
             <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">SOL Transfer</h1>
             <div className="space-y-4">
