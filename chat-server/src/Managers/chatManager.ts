@@ -42,7 +42,6 @@ export class ChatManager {
             let message: Message;
             try {
                 message = JSON.parse(messageSent.toString());
-                console.log({message})
             } catch(err) {
                 ws.send("Invalid data provided");
                 return;
@@ -110,7 +109,6 @@ export class ChatManager {
             ws.close();
             return;
         }
-        console.log(this.connections);
         if(!this.connections.has(receiver)) {
             try {
                 await this.client.lPush("chat_message", JSON.stringify({ sender, receiver, content }));

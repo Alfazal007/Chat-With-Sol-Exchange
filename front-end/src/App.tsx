@@ -7,9 +7,20 @@ import {
 import { SignUp } from './custom-components/SignUp';
 import { Toaster } from './components/ui/toaster';
 import {SignIn} from './custom-components/Signin';
-import Chat from './custom-components/Chat';
 import UserProvider from './context/UserContext';
 import ChatPage from './custom-components/v0Components/ChattingPage';
+import SolPayer from './custom-components/SolPayer';
+
+
+
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import {
+    WalletModalProvider,
+} from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl } from '@solana/web3.js';
+
+import '@solana/wallet-adapter-react-ui/styles.css';
+
 
 function App() {
     const router = createBrowserRouter([
@@ -30,20 +41,27 @@ function App() {
             element: <SignIn />,
         },
         {
-            path: "/new-chat",
-            element: <Chat />,
+            path: "/pay-sol",
+            element: <SolPayer />,
         },
         {
             path: "/chat",
             element: <ChatPage />,
         },
     ]);
+    const endpoint = clusterApiUrl("devnet");
 
     return (
         <div>
             <UserProvider>
-                <RouterProvider router={router} />
-                <Toaster />
+                <ConnectionProvider endpoint={endpoint}>
+                    <WalletProvider wallets={[]} autoConnect>
+                        <WalletModalProvider>
+                            <RouterProvider router={router} />
+                            <Toaster />
+                        </WalletModalProvider>
+                    </WalletProvider>
+                </ConnectionProvider>
             </UserProvider>
         </div>
     )
