@@ -24,8 +24,10 @@ app.use(
 app.use(express.static("public")); // static files which anyone can access
 app.use(cookieParser()); // get cookies from browser and also to set it
 
-
 import { userRouter } from "./routes/userRoutes/user.routes";
 app.use("/api/v1/user", userRouter);
+
+import { messageRouter } from "./routes/userRoutes/message.routes";
+app.use("/api/v1/message", messageRouter);
 
 export { app };

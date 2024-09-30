@@ -9,6 +9,7 @@ import { useSocket } from '@/hooks/useSocket'
 import ChatSearcher from './ChatPage'
 import { Chat_Message, Init_Message } from '@/wsMessages/MessageTypes'
 import {nanoid} from 'nanoid'
+import axios from 'axios'
 
 export interface ChatPreview {
     id: string
@@ -50,6 +51,39 @@ export default function ChatPage() {
     }
     const {user, accessToken} = userContext || {};
     const socket = useSocket();
+
+    useEffect(()=>{
+        async function getUnreadMessages() {
+            try {
+                const dataFetched = await axios.get("http://localhost:8000/api/v1/message/fetch-unread-messages", {withCredentials: true});
+                if(dataFetched.data.data.length == 0) {
+                    return;
+                } else {
+                    const unreadMessages: {sender: string, content: string}[] = dataFetched.data.data;
+                    for(let i = 0; i < unreadMessages.length; i++) {
+                        const {sender, content} = unreadMessages[i];
+                        if(chats.has(sender)) {
+                            const valueToBeUpdated = chats.get(sender);
+                            if(!valueToBeUpdated) {
+                                updateChat(sender, {messages: [{id: nanoid(), content, sender}], id: sender})
+                            } else {
+                                const prevMessages = valueToBeUpdated.messages;
+                                const newMessages = [...prevMessages, {sender, content, id: nanoid()}]
+                                updateChat(sender, {id: sender, messages: newMessages});
+
+                            }
+                        } else {
+                            // logic of not present
+                            updateChat(sender, {id: sender, messages: [{content, sender, id: nanoid()}]});
+                        }
+                    }
+                }
+            } catch(err) {
+                console.log("Issue fetching unread messages");
+            }
+        }
+        getUnreadMessages();
+    }, [])
     useEffect(()=>{
         if(!user || !userContext || !accessToken) {
             navigate("/sign-in");
@@ -102,6 +136,9 @@ export default function ChatPage() {
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault()
         if(!selectedChat) {
+            return;
+        }
+        if(messageToBeSent.length == 0) {
             return;
         }
         const messageBeingSent = {

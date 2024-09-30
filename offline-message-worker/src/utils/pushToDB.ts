@@ -41,8 +41,8 @@ export const pushMessageToDB = async (sender: string, receiver: string, content:
         try {
             await prisma.message.create({
                 data: {
-                    sender: senderUser.id,
-                    receiver: receiverUser.id,
+                    sender: senderUser.username,
+                    receiver: receiverUser.username,
                     content: content,
                 }
             });
