@@ -25,3 +25,8 @@
         "content": "this is a msg from someone1 to someone2"
     }
 }
+
+
+docker commands
+docker run -p 8000:8000 --env-file .env --name auth-be-solchat --network solchat-network auth-be-solchat
+docker run -p 8001:8001 --env-file .env --name chat-be-solchat --network solchat-network chat-be-solchat

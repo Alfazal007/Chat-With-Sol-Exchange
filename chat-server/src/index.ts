@@ -3,7 +3,7 @@ import {configDotenv} from "dotenv";
 import { ChatManager } from './Managers/chatManager';
 configDotenv({path: ".env"})
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8001;
 
 const wss = new WebSocketServer({ port: port as number }, ()=> {
     console.log(`Server running on port ${port}`);
