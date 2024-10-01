@@ -3,8 +3,10 @@ import { pushMessageToDB } from "./utils/pushToDB";
 import { configDotenv } from "dotenv";
 
 configDotenv({path: ".env"})
-
-export const client = createClient();
+export const client = createClient({password: process.env.REDIS_PASSWORD, socket: {
+    host: process.env.REDIS_HOST,
+    port: Number.parseInt(process.env.REDIS_PORT || "11339")
+}});
 
 async function startWorker() {
     try {
@@ -14,6 +16,9 @@ async function startWorker() {
         while (true) {
             try {
                 const redisData = await client.brPop("chat_message", 0);
+                if(!redisData) {
+                    continue;
+                }
                 const {key, element} = redisData;
                 if(key == "chat_message") {
                     const messageInfo = JSON.parse(element);

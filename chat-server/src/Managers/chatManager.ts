@@ -3,6 +3,7 @@ import { Chat_Message, Disconnect_Message, Init_Message, validationUrl } from ".
 import axios from "axios";
 import {createClient, RedisClientType} from "redis";
 
+
 export class ChatManager {
     private static chatManager: ChatManager;
     public connections: Map<string, WebSocket>;
@@ -10,7 +11,10 @@ export class ChatManager {
 
     private constructor() {
         this.connections = new Map<string, WebSocket>();
-        this.client = createClient();
+        this.client = createClient({password: process.env.REDIS_PASSWORD, socket: {
+            host: process.env.REDIS_HOST,
+            port: Number.parseInt(process.env.REDIS_PORT || "11339")
+        }});
         this.client.connect().then(()=>{}).catch(()=> {console.log("Failed to connect to redis client");})
     }
 
