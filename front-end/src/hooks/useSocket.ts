@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const WS_URL = "ws://import.meta.env.VITE_BACKEND:8001";
+const WS_URL = "wss://import.meta.env.VITE_BACKEND:8001";
 
 export const useSocket = () => {
     const [_, setIsConnecting] = useState(false);
