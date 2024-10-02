@@ -37,7 +37,7 @@ export default function ChatSearcher({chats, setSelectedMessages, setSelectedCha
                 setFoundUsername(username);
                 return;
             }
-            const userPresent = await axios.get(`https://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/get-username/${username}`, {
+            const userPresent = await axios.get(`http://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/get-username/${username}`, {
                 withCredentials: true
             });
             setFoundUsername(username);

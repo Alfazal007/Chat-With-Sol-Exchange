@@ -42,7 +42,7 @@ export function SignIn() {
     async function onSubmit(values: z.infer<typeof loginUserType>) {
         setIsSubmitting(true);
         try {
-            const response = await axios.post(`https://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/login-user`, values, {
+            const response = await axios.post(`http://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/login-user`, values, {
                 withCredentials: true
             });
             if (response.data.statusCode == 200) {
@@ -51,12 +51,12 @@ export function SignIn() {
                     description:
                         "Successfully logged in",
                 });
-                const currentUser = await axios.get(`https://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/current-user-cookie`, {withCredentials: true});
+                const currentUser = await axios.get(`http://${import.meta.env.VITE_BACKEND}:8000/api/v1/user/current-user-cookie`, {withCredentials: true});
                 if(currentUser.data.statusCode == 200 && currentUser.data.data) {
                     setUser(currentUser.data.data);
                     setAccessToken(response.data.data?.accessToken || "");
                     setRefreshToken(response.data.data?.refreshToken || "");
-                    navigate("/chat");
+                    navigate("/");
                 }
             } else {
                 toast({

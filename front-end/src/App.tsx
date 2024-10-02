@@ -36,7 +36,7 @@ function App() {
             element: <SolPayer />,
         },
         {
-            path: "/chat",
+            path: "/",
             element: <ChatPage />,
         },
     ]);
