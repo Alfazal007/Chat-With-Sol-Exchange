@@ -55,7 +55,7 @@ export default function ChatPage() {
     useEffect(()=>{
         async function getUnreadMessages() {
             try {
-                const dataFetched = await axios.get("http://localhost:8000/api/v1/message/fetch-unread-messages", {withCredentials: true});
+                const dataFetched = await axios.get("https://import.meta.env.VITE_BACKEND:8000/api/v1/message/fetch-unread-messages", {withCredentials: true});
                 if(dataFetched.data.data.length == 0) {
                     return;
                 } else {

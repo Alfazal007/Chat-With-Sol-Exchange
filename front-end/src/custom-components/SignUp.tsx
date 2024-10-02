@@ -47,7 +47,7 @@ export function SignUp() {
             setIsCheckingUsername(true);
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/api/v1/user/unique-username/${username}`
+                    `https://import.meta.env.VITE_BACKEND:8000/api/v1/user/unique-username/${username}`
                 );
                 let message = response.data.message;
                 setUsernameMessage(message);
@@ -64,7 +64,7 @@ export function SignUp() {
     async function onSubmit(values: z.infer<typeof signUpSchema>) {
         setIsSubmitting(true);
         try {
-            const response = await axios.post("http://localhost:8000/api/v1/user/create-user", values);
+            const response = await axios.post("https://import.meta.env.VITE_BACKEND:8000/api/v1/user/create-user", values);
             if (response.data.statusCode == 201) {
                 toast({
                     title: "Success",
